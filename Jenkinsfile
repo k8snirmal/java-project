@@ -12,6 +12,7 @@ pipeline{
                     withSonarQubeEnv(credentialsId: 'sonar-pwd') {
                         sh "chmod +x gradlew"
                         sh "./gradlew sonarqube"
+                    }
                         timeout(5) {
                             def qg = waitForQualityGate()
                             if (qg.status != 'OK') {
@@ -29,4 +30,3 @@ pipeline{
             }
         }
     }
-}
