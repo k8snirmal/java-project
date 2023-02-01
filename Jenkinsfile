@@ -14,7 +14,7 @@ pipeline{
                         sh "./gradlew sonarqube"
                         timeout(5) {
                             def qg = waitForQualityGate()
-                            if (qg.status = 'OK') {
+                            if (qg.status='OK') {
                                 error "the quality gate treshold: ${qg.status}"
                             }
                         }    
