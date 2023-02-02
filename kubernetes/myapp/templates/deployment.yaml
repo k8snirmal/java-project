@@ -12,16 +12,16 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "myapp.labels" . | nindent 8}}
+        {{- include "myapp.selectorLabels" . | nindent 8 }}
     spec:
       imagePullSecrets:
         - name: registry-secret
       containers:
-        - name: {{ .Chart.Name }}  
+        - name: {{ .Chart.Name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           command: ["/bin/sh"]
-          args: ["-c","sh /usr/local/tomcat/bin/startup.sh;while true; do echo hello;done"]
-          imagePullpolicy: {{ .Values.image.pullPolicy}}
+          args: ["-c","sh /usr/local/tomcat/bin/startup.sh;while true; do echo hello; sleep 10;done"]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
@@ -35,7 +35,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
             timeoutSeconds: 10
-          redinessProbe:
+          readinessProbe:
             httpGet:
               path: /
               port: http
@@ -45,9 +45,9 @@ spec:
             failureThreshold: 3
             timeoutSeconds: 10
           resources:
-            requestes:
+            requests:
               memory: 0.25Gi
               cpu: 0.5
             limits:
-              memory: 0.25Gi
+              memory: 0.25Gi 
               cpu: 0.5
