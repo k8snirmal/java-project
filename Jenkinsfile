@@ -1,5 +1,8 @@
 pipeline{
     agent any
+    environment{
+        VERSION = "${BUILD_ID}"
+    }
     stages{
         stage("Sonar code check"){
             agent {
@@ -19,14 +22,23 @@ pipeline{
                                 error "the quality gate treshold: ${qg.status}"
                             }
                         }
-                        /* timeout(time: 1, unit: 'HOURS') {
-                            def qg = waitForQualityGate()
-                            if (qg.status != 'OK') {
-                                error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                            }
-                        } */  
+                }
+            }
+        }
+        stage("docker build & push"){
+            steps{
+                script{
+                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker_password')]) {
+                        sh '''
+                            docker build -t 35.200.144.65:8083/springapp:${VERSION} .
+                            docker login -u admin -p docker_password 35.200.144.65:8083
+                            docker push 35.200.144.65:8083/springapp:${VERSION}
+                            docker rmi 35.200.144.65:8083/springapp:${VERSION}
+                        '''
                     }
+
                 }
             }
         }
     }
+}
