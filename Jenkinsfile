@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment{
-        VERSION = "${BUILD_ID}"
+        VERSION = "${env.BUILD_ID}"
     }
     stages{
         stage("Sonar code check"){
