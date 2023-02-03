@@ -10,20 +10,20 @@ pipeline{
                     image 'openjdk:11'
                 }
             }
-            steps{
-                script{
-                    withSonarQubeEnv(credentialsId: 'sonar-pwd') {
-                        sh "chmod +x gradlew"
-                        sh "./gradlew sonarqube"
-                    }
+                steps{
+                    script{
+                        withSonarQubeEnv(credentialsId: 'sonar-pwd') {
+                            sh "chmod +x gradlew"
+                            sh "./gradlew sonarqube"
+                        }
                         timeout(5) {
                             def qg = waitForQualityGate()
                             if (qg.status != 'OK') {
                                 error "the quality gate treshold: ${qg.status}"
                             }
                         }
+                    }
                 }
-            }
         }
         stage("docker build & push"){
             steps{
@@ -49,7 +49,7 @@ pipeline{
                     }      
                 }
             }
-        }
+        }    
         stage("helm push-nexus"){
             steps{
                 script{
@@ -63,6 +63,17 @@ pipeline{
                         }    
                     }                     
                 }      
+            }
+        }
+        stage('Deploying application on k8s cluster') {
+            steps {
+               script{
+                   withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'credentialsId', namespace: '', restrictKubeConfigAccess: false, serverUrl: 'https://10.160.0.16:6443'){
+                        dir('kubernetes/') {
+                          sh 'helm upgrade --install --set image.repository="35.200.144.65:8083/springapp" --set image.tag="${VERSION}" myjavaapp myapp/ ' 
+                        }
+                   }    
+               }
             }
         }
     }        
