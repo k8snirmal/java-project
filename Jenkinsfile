@@ -42,7 +42,7 @@ pipeline{
         stage("datree check"){
             steps{
                 script{
-                    dir('kubernetes') {
+                    dir('kubernetes/') {
                         withEnv(['DATREE_TOKEN=64351165-d9b2-4682-8b68-52dbe3993811']) {
                             sh "helm datree test myapp/ --debug"
                         }                     
@@ -54,12 +54,12 @@ pipeline{
             steps{
                 script{
                      withCredentials([string(credentialsId: 'docker_pass', variable: 'docker_password')]) {
-                        dir('kubernetes') {
+                        dir('kubernetes/') {
                             sh '''
-                                helmversion = ${helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' '}
+                                helmversion = $(helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
                                 tar -czvf myapp-${helmversion}.tgz myapp/
                                 curl -u admin:$docker_password http://35.200.144.65/:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
-                            '''
+                           '''
                         }    
                     }                     
                 }      
