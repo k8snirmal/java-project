@@ -30,10 +30,10 @@ pipeline{
                 script{
                     withCredentials([string(credentialsId: 'docker_pass', variable: 'docker_password')]) {
                         sh '''
-                            docker build -t 35.200.144.65:8083/springapp:${VERSION} .
+                            docker build -t 34.100.190.138:8083/springapp:${VERSION} .
                             docker login -u admin -p $docker_password 35.200.144.65:8083
-                            docker push 35.200.144.65:8083/springapp:${VERSION}
-                            docker rmi 35.200.144.65:8083/springapp:${VERSION}
+                            docker push 34.100.190.138:8083/springapp:${VERSION}
+                            docker rmi 34.100.190.138:8083/springapp:${VERSION}
                         '''
                     }
                 }
@@ -58,7 +58,7 @@ pipeline{
                             sh '''
                                 helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
                                 tar -czvf  myapp-${helmversion}.tgz myapp/
-                                curl -u admin:$docker_password http://35.200.144.65:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
+                                curl -u admin:$docker_password http://34.100.190.138:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
                            '''
                         }    
                     }                     
@@ -70,7 +70,7 @@ pipeline{
                script{
                    withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'credentialsId', namespace: '', restrictKubeConfigAccess: false, serverUrl: 'https://10.160.0.16:6443'){
                         dir('kubernetes/') {
-                          sh 'helm upgrade --install --set image.repository="35.200.144.65:8083/springapp" --set image.tag="${VERSION}" myjavaapp myapp/ ' 
+                          sh 'helm upgrade --install --set image.repository="34.100.190.138:8083/springapp" --set image.tag="${VERSION}" myjavaapp myapp/ ' 
                         }
                    }    
                }
